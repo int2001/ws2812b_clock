@@ -34,7 +34,6 @@ void loop()
     o_spos=spos;                  // Dann alte auf neue setzen
     millis_offset=millis();       // internen Millisec.-Counter des mC in offset speichern (das ding ist sonst zu ungenau)
   }
-  float hpos=(((float)spos/3600)*60/12);  // Stundenposition berechnen und auf die 60 Teilstriche (hier noch Fliesskommazahl) umrechnen
   for (byte i=0;i<NUM_LEDS;i++) { // Einmal alle LEDs durchlaufen (fuer "Mark"-LEDs)
     if (i%5 == 0) {               // Position durch 5 glatt teilbar?
      // leds[i]=CRGB(2,2,0);      // Dann SET
@@ -44,18 +43,19 @@ void loop()
     }
   }
   
-  float nbright=(float)(millis()-millis_offset)/1000;         // Berechne Sekundenbruchteil
-  byte sekufraction=ceil(nbright*BRIGHTNESS);                 // Berechne aus dem Bruchteil Dimmfaktor * Helligkeit
-  if (sekufraction>BRIGHTNESS) { sekufraction=BRIGHTNESS; }   // Neuer Helligkeitskorrekturwert groesser als Max-Helligkeit? Dann begrenzen
-  set_led(spos%NUM_LEDS,0, BRIGHTNESS-sekufraction, BRIGHTNESS-sekufraction); // Setze Sekunde gedimmt um korrekturwert
-  set_led((spos+1)%NUM_LEDS,0, sekufraction, sekufraction);                   // Setze Zukunftssekunde gedimmt um korrekturwert
+  float hpos=(((float)spos/3600)*60/12);  // Stundenposition berechnen und auf die 60 Teilstriche (hier noch Fliesskommazahl) umrechnen
   set_led((round(hpos+1)%NUM_LEDS),BRIGHTNESS/4, 0, 0);                       // Setze NACHlaufende Stunde gedimmt
   set_led((round(hpos)%NUM_LEDS),BRIGHTNESS, 0, 0);                           // Setze Stunde
   if (hpos==-1) { hpos=12; }                                                  // Rollover um 00:0 bzw. 12:00
   set_led((round(hpos-1)%NUM_LEDS),BRIGHTNESS/4, 0, 0);                       // Setze VORlaufende Stunde
-  nbright=((float)spos/60)-int(spos/60);               // Fadingeffekt fuer Minuten errechnen (Fraction of Minutes)
+  float nbright=((float)spos/60)-int(spos/60);               // Fadingeffekt fuer Minuten errechnen (Fraction of Minutes)
   set_led(((spos/60))%NUM_LEDS,0, BRIGHTNESS-ceil(nbright*BRIGHTNESS), 0);    // Setze Minuten auf Helligkeit - (Helligkeit * Fraction)
   set_led(((spos/60)+1)%NUM_LEDS,0, ceil(nbright*BRIGHTNESS), 0);             // Setze Minuten+1 auf Helligkeit * Fraction
+  nbright=(float)(millis()-millis_offset)/1000;         // Berechne Sekundenbruchteil
+  byte sekufraction=ceil(nbright*BRIGHTNESS);                 // Berechne aus dem Bruchteil Dimmfaktor * Helligkeit
+  if (sekufraction>BRIGHTNESS) { sekufraction=BRIGHTNESS; }   // Neuer Helligkeitskorrekturwert groesser als Max-Helligkeit? Dann begrenzen
+  set_led(spos%NUM_LEDS,0, 0, BRIGHTNESS-sekufraction); // Setze Sekunde gedimmt um korrekturwert
+  set_led((spos+1)%NUM_LEDS,0, 0, sekufraction);                   // Setze Zukunftssekunde gedimmt um korrekturwert
   
   FastLED.show();                                               // Und SHOWTime
   FastLED.delay(1000/FRAMES_PER_SECOND);                        // Warten
