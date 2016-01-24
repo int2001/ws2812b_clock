@@ -48,7 +48,7 @@ void loop()
   float hpos=(((float)spos/3600)*60/12);                                      // Calculate Hourposition for the 60 divisors as floatingpoint
   set_led((round(hpos+1)%NUM_LEDS),BRIGHTNESS/4, 0, 0);                       // SET hour after the current (as dimmed)
   set_led((round(hpos)%NUM_LEDS),BRIGHTNESS, 0, 0);                           // SET hour
-  if (hpos==-1) { hpos=12; }                                                  // Rollover at 00:00 / 12:00
+  if (round(hpos)==0) { hpos=60; }                                                  // Rollover at 00:00 / 12:00
   set_led((round(hpos-1)%NUM_LEDS),BRIGHTNESS/4, 0, 0);                       // SET hour before the current (as dimmed)
   
   // Minutes
